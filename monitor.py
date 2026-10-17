@@ -103,7 +103,7 @@ def main():
                 send_photo(token, chat, OUT / data['image'],
                            f'⚡ Графік 5.2 оновився ({label})\nПеревірено: {now}\nДжерело: {data["url"]}') 
                 if family_chat:
-                send_photo(token, family_chat, OUT / data['image'],
+                    send_photo(token, family_chat, OUT / data['image'],
                            f'⚡️ Графік 5.2 оновився ({label})\nПеревірено: {now}\nДжерело: {data["url"]}')
         elif changed:
             print('Telegram secrets missing; saved graph without sending notifications')
