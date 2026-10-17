@@ -94,8 +94,10 @@ def main():
                 changed.append((label, new))
         token, chat = os.getenv('TELEGRAM_TOKEN'), os.getenv('TELEGRAM_CHAT_ID')
         # Only persist the new state once messages were successfully delivered.
-        if changed and token and chat:
-            for label, data in changed:
+        if token and chat:
+            for label, data in [('сьогодні', today), ('завтра', tomorrow)]:
+                if data is None:
+                    continue
                 send_photo(token, chat, OUT / data['image'],
                            f'⚡ Графік 5.2 оновився ({label})\nПеревірено: {now}\nДжерело: {data["url"]}')
         elif changed:
