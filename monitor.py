@@ -116,7 +116,6 @@ def main():
                                     device_scale_factor=2, locale='uk-UA',
                                     timezone_id='Europe/Kyiv')
             today = capture(page, BASE, 'today.png', 'Сьогодні')
-            send_photo(token, family_chat, OUT / "today.png", "🧪 Тест сімейної групи")
             tomorrow = None
             try:
                 page.goto(BASE, wait_until='domcontentloaded', timeout=45000)
@@ -138,6 +137,7 @@ def main():
         token = os.getenv('TELEGRAM_TOKEN')
         chat = os.getenv('TELEGRAM_CHAT_ID')
         family_chat = os.getenv('TELEGRAM_FAMILY_CHAT_ID')
+        send_photo(token, family_chat, OUT / "today.png", "🧪 Тест сімейної групи")
         if token and chat:
             for label, data in changed:
                 caption = (f'⚡ Графік 5.2 оновився ({label})\n'
