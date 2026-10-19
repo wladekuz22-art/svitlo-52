@@ -23,7 +23,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_FAMILY_CHAT_ID: ${{ secrets.TELEGRAM_FAMILY_CHAT_ID }}
+          TELEGRAM_FAMILY_CHAT_ID: ${{ secrets.TELEGRAM_GROUP_CHAT_ID }}
         run: python monitor.py
       - name: Publish changes
         run: |
