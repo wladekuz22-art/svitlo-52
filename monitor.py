@@ -21,7 +21,7 @@ STATE = OUT / "data.json"
 BASE = "https://bezsvitla.com.ua/kyivska-oblast/cherha-5-2"
 TZ = ZoneInfo("Europe/Kyiv")
 
-HEADING = re.compile(r"Графік\s+черги\s+5\.2", re.I)
+HEADING = re.compile(r"Графік\s+черги\s+5[\.,]2", re.I)
 INTERVAL = re.compile(r"\d\d:\d\d\s*[-–]\s*\d\d:\d\d")
 
 
