@@ -1,5 +1,7 @@
 """Monitor the visible Group 5.2 schedule and notify Telegram chats."""
 import hashlib
+import base64
+import html
 import json
 import os
 import re
@@ -22,7 +24,35 @@ HEADING = re.compile(r'Графік\s+черг[аиі]\s+5[.,]2', re.I)
 INTERVAL = re.compile(r'\d{2}:\d{2}\s*[-–—]\s*\d{2}:\d{2}')
 
 
-def capture(page, url, filename):
+def decorate(page, raw, label):
+    """Render a compact branded image using the real, unmodified schedule screenshot."""
+    encoded = base64.b64encode(raw).decode('ascii')
+    title = html.escape(label)
+    preview = page.context.new_page()
+    try:
+        preview.set_content(f"""<!doctype html><html lang="uk"><head><meta charset="utf-8">
+<style>
+* {{ box-sizing:border-box; }}
+html,body {{ margin:0; padding:0; background:#eef2f7; }}
+.panel {{ width:760px; padding:20px; background:#eef2f7; font-family:Arial,sans-serif; }}
+.header {{ background:#14243b; color:white; padding:22px 26px; border-radius:18px 18px 0 0; }}
+h1 {{ margin:0 0 8px; font-size:27px; line-height:1.2; }}
+.sub {{ font-size:17px; color:#c8d8f1; }}
+.content {{ background:white; padding:12px; text-align:center; }}
+.content img {{ display:block; width:100%; height:auto; }}
+.footer {{ background:#14243b; color:#c8d8f1; padding:13px 26px; border-radius:0 0 18px 18px; font-size:14px; }}
+</style></head><body><div class="panel">
+<div class="header"><h1>⚡ Графік відключень світла</h1>
+<div class="sub">Група 5.2 · Київська область · {title}</div></div>
+<div class="content"><img src="data:image/png;base64,{encoded}" alt="Графік"></div>
+<div class="footer">Джерело: bezsvitla.com.ua</div>
+</div></body></html>""", wait_until='load')
+        return preview.locator('.panel').screenshot(animations='disabled', timeout=15000)
+    finally:
+        preview.close()
+
+
+def capture(page, url, filename, label):
     response = page.goto(url, wait_until='domcontentloaded', timeout=45000)
     if not response or response.status >= 400:
         raise RuntimeError(f'HTTP {response.status if response else "no response"}')
@@ -56,7 +86,7 @@ def capture(page, url, filename):
     digest = hashlib.sha256(raw).hexdigest()
     # Clip only whitespace outside the original card; keep every original color/time.
     # The screenshot is already a tight element screenshot, not a full-page screenshot.
-    (OUT / filename).write_bytes(raw)
+    (OUT / filename).write_bytes(decorate(page, raw, label))
     return {'url': url, 'text': text[:1200], 'image': filename, 'hash': digest}
 
 
@@ -66,7 +96,12 @@ def send_photo(token, chat, photo, caption):
             f'https://api.telegram.org/bot{token}/sendPhoto',
             data={'chat_id': chat, 'caption': caption[:1024]},
             files={'photo': fp}, timeout=40)
-    response.raise_for_status()
+    if not response.ok:
+        try:
+            reason = response.json().get('description', 'Telegram request failed')
+        except ValueError:
+            reason = f'HTTP {response.status_code}'
+        raise RuntimeError(f'Telegram sendPhoto failed: {reason}')
     if not response.json().get('ok'):
         raise RuntimeError('Telegram rejected photo')
 
@@ -80,7 +115,7 @@ def main():
             page = browser.new_page(viewport={'width': 1200, 'height': 900},
                                     device_scale_factor=2, locale='uk-UA',
                                     timezone_id='Europe/Kyiv')
-            today = capture(page, BASE, 'today.png')
+            today = capture(page, BASE, 'today.png', 'Сьогодні')
             tomorrow = None
             try:
                 page.goto(BASE, wait_until='domcontentloaded', timeout=45000)
@@ -88,7 +123,7 @@ def main():
                 if link.count():
                     href = link.get_attribute('href')
                     if href:
-                        tomorrow = capture(page, urljoin(BASE, href), 'tomorrow.png')
+                        tomorrow = capture(page, urljoin(BASE, href), 'tomorrow.png', 'Завтра')
             except Exception as exc:
                 print('Tomorrow unavailable:', exc)
             browser.close()
@@ -108,7 +143,10 @@ def main():
                            f'Перевірено: {now}\nДжерело: {data["url"]}')
                 send_photo(token, chat, OUT / data['image'], caption)
                 if family_chat:
-                    send_photo(token, family_chat, OUT / data['image'], caption)
+                    try:
+                        send_photo(token, family_chat, OUT / data['image'], caption)
+                    except Exception as exc:
+                        print('Family group delivery failed:', exc)
         elif changed:
             print('Telegram secrets missing; saved graph without sending notifications')
         STATE.write_text(json.dumps(current, ensure_ascii=False, indent=2), 'utf-8')
