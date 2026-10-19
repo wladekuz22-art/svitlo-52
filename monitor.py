@@ -28,7 +28,7 @@ def decorate(page, raw, label):
     """Render a compact branded image using the real, unmodified schedule screenshot."""
     encoded = base64.b64encode(raw).decode('ascii')
     title = html.escape(label)
-    preview = page.context.new_page()
+    preview = page.context.browser.new_page()
     try:
         preview.set_content(f"""<!doctype html><html lang="uk"><head><meta charset="utf-8">
 <style>
