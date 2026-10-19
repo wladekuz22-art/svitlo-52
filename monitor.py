@@ -137,7 +137,6 @@ def main():
         token = os.getenv('TELEGRAM_TOKEN')
         chat = os.getenv('TELEGRAM_CHAT_ID')
         family_chat = os.getenv('TELEGRAM_FAMILY_CHAT_ID')
-        send_photo(token, family_chat, OUT / "today.png", "🧪 Тест сімейної групи")
         if token and chat:
             for label, data in changed:
                 caption = (f'⚡ Графік 5.2 оновився ({label})\n'
