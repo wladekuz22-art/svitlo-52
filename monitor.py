@@ -116,6 +116,7 @@ def main():
                                     device_scale_factor=2, locale='uk-UA',
                                     timezone_id='Europe/Kyiv')
             today = capture(page, BASE, 'today.png', 'Сьогодні')
+            send_photo(token, family_chat, OUT / "today.png", "🧪 Тест сімейної групи")
             tomorrow = None
             try:
                 page.goto(BASE, wait_until='domcontentloaded', timeout=45000)
