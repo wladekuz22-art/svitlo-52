@@ -1,11 +1,11 @@
 {
-  "checked_at": "24.10.2026 15:08",
+  "checked_at": "24.10.2026 15:43",
   "status": "ok",
   "today": {
     "url": "https://bezsvitla.com.ua/kyivska-oblast/cherha-5-2",
     "text": "Графік Черга 5.2\n\nЧасові інтервали та поточний статус електропостачання для цієї черги\n\n1\nГРАФІК\nЧерга 5.2\n00:00 – 11:30\n11:30 – 15:30\n15:30 – 24:00\nЗберегти підчергу\ni\nІсторія змін\n24.10.2026 14:44",
     "image": "today.png",
-    "hash": "9d6cf004310fb42ae5e8af3c6901cd03895acad88bd22d615bedf5defa05214c"
+    "hash": "9e52ff039f386ac7b839ea1f071d18494c88862cf1d9f428ba4082e4fd349a53"
   },
   "tomorrow": null,
   "source": "https://bezsvitla.com.ua/kyivska-oblast/cherha-5-2"
